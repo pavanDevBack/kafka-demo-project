@@ -1,0 +1,50 @@
+### 1. Pedido normal
+POST http://localhost:8081/pedidos?modo=ACKS_ALL
+Content-Type: application/json
+
+{"cliente": "Ana", "valor": 50}
+
+### 2. Pedido inválido (vai para a DLT depois de 3 tentativas)
+POST http://localhost:8081/pedidos
+Content-Type: application/json
+
+{"cliente": "Bruno", "valor": -10}
+
+### 3. Pedido no tópico estrito (min.insync.replicas = 3)
+POST http://localhost:8081/pedidos?topico=pedidos-estrito
+Content-Type: application/json
+
+{"cliente": "Carla", "valor": 80}
+
+### 4. Lote com acks=0
+POST http://localhost:8081/pedidos/lote?quantidade=2000&intervaloMs=5&modo=ACKS_0
+
+### 5. Lote com acks=all
+POST http://localhost:8081/pedidos/lote?quantidade=2000&intervaloMs=5&modo=ACKS_ALL
+
+### 6. Estatísticas do producer
+GET http://localhost:8081/pedidos/estatisticas
+
+### 7. Pendentes (pedidos que não chegaram ao Kafka)
+GET http://localhost:8081/pedidos/pendentes
+
+### 8. Reenviar pendentes
+POST http://localhost:8081/pedidos/pendentes/reenviar
+
+### 9. Resumo do consumer
+GET http://localhost:8082/processamentos/resumo
+
+### 10. Limpar o registro do consumer
+DELETE http://localhost:8082/processamentos
+
+### 11. Derrubar o consumer no próximo pedido
+POST http://localhost:8082/simulacao/queda
+
+### 12. Ligar a idempotência
+POST http://localhost:8082/simulacao/idempotencia?ativa=true
+
+### 13. Pedido sem cliente (400 Bad Request, não chega ao Kafka)
+POST http://localhost:8081/pedidos
+Content-Type: application/json
+
+{"valor": 30}

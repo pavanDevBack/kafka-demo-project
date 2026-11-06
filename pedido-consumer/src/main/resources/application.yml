@@ -1,0 +1,41 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: pedido-consumer
+  threads:
+    virtual:
+      enabled: true          # o Spring Kafka também roda os listeners em virtual threads
+  kafka:
+    bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+    consumer:
+      group-id: processador-pedidos
+      auto-offset-reset: earliest
+      enable-auto-commit: false          # o offset só é salvo quando o código chama ack.acknowledge()
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: br.edu.sd.pedidoconsumer.model.Pedido
+        spring.json.use.type.headers: false
+        spring.json.trusted.packages: "*"
+    producer:                            # usado só para publicar na Dead Letter Topic
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    listener:
+      ack-mode: manual_immediate         # salva o offset na hora em que o ack é chamado
+
+app:
+  idempotencia: false                    # ligue com --app.idempotencia=true ou pelo endpoint
+  arquivo-registro: processados.log
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.apache.kafka: WARN               # os logs de "partitions assigned" do Spring Kafka continuam

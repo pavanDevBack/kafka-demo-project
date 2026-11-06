@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: pedido-producer
+  threads:
+    virtual:
+      enabled: true          # Tomcat e tarefas assíncronas em virtual threads (Java 21)
+  mvc:
+    problemdetails:
+      enabled: true          # erros HTTP no formato padrão RFC 9457
+  kafka:
+    bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+    admin:
+      modify-topic-configs: true   # se o tópico já existir, ajusta as configs para as do NewTopic
+
+app:
+  producer:
+    bootstrap-servers: ${spring.kafka.bootstrap-servers}
+    request-timeout: 5s      # curtos de propósito: os erros aparecem em segundos na demo
+    delivery-timeout: 15s
+    max-block: 5s
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.apache.kafka: WARN   # menos ruído; avisos como NOT_ENOUGH_REPLICAS continuam aparecendo
